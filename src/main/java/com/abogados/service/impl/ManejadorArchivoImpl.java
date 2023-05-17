@@ -5,6 +5,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.abogados.exception.ExcepcionArgumento;
+import com.abogados.util.ConexionS3;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,59 +18,62 @@ import com.abogados.service.IManejadorArchivo;
 @Service
 public class ManejadorArchivoImpl implements IManejadorArchivo {
 
-	@Value("${ruta}")
-	private String rutaArchivo;
+    @Value("${ruta}")
+    private String rutaArchivo;
 
-	@Override
-	public String guardarArchivo(MultipartFile archivoLlegada, String subRuta)
-			throws IllegalStateException, IOException {
+    private final ConexionS3 conexionS3;
 
-		String nombreArchivo = crearNombreArchivo(archivoLlegada.getOriginalFilename());
+    public ManejadorArchivoImpl(ConexionS3 conexionS3) {
+        this.conexionS3 = conexionS3;
+    }
 
-		File archivoSubida = new File(rutaArchivo.concat(subRuta).concat(nombreArchivo));
-		archivoLlegada.transferTo(archivoSubida);
+    @Override
+    public String guardarArchivo(MultipartFile archivoLlegada, String subRuta)
+            throws IllegalStateException, IOException {
 
-		return nombreArchivo;
-	}
+        if (archivoLlegada.getOriginalFilename() == null)
+            throw new ExcepcionArgumento("ARCHIVO' NO VALIDO");
+        String nombreArchivo = subRuta + "/" + crearNombreArchivo(archivoLlegada.getOriginalFilename());
 
-	@Override
-	public String actualizarArchivo(MultipartFile archivoLlegada, String nombreArchivoAntiguo, String subRuta)
-			throws IllegalStateException, IOException {
+        boolean resultado = convertirYGuardar(nombreArchivo, archivoLlegada);
 
-		File archivoSubida = new File(rutaArchivo.concat(subRuta).concat(nombreArchivoAntiguo));
-		archivoSubida.delete();
+        if (!resultado)
+            throw new ExcepcionArgumento("Fallo en la subida del Archivo");
 
-		String nombreArchivo = crearNombreArchivo(archivoLlegada.getOriginalFilename());
+        return nombreArchivo;
+    }
 
-		File archivoNuevo = new File(rutaArchivo.concat(subRuta).concat(nombreArchivo));
-		archivoLlegada.transferTo(archivoNuevo);
+    private boolean convertirYGuardar(String nombreArchivo, MultipartFile archivoLlegada) throws IOException {
 
-		return nombreArchivo;
-	}
-	
-	public void eliminarArchivo( String archivoEliminado, String subRuta)
-			throws IllegalStateException, IOException {
+        File archivoSubida = new File(archivoLlegada.getOriginalFilename());
+        FileUtils.writeByteArrayToFile(archivoSubida, archivoLlegada.getBytes());
 
-		File archivoSubida = new File(rutaArchivo.concat(subRuta).concat(archivoEliminado));
-		archivoSubida.delete();
-		
-		}
-	
-	private String crearNombreArchivo(String nombreArchivo) {
+        return conexionS3.subir(nombreArchivo, archivoSubida);
+    }
 
-		int numero = (int) (Math.random() * 200 + 1);
-		return "archivo-" + numero + "-" + (nombreArchivo.replace("\\", ""));
+    @Override
+    public String actualizarArchivo(MultipartFile archivoLlegada, String nombreArchivoAntiguo, String subRuta)
+            throws IllegalStateException, IOException {
 
-	}
+        eliminarArchivo(nombreArchivoAntiguo);
 
-	@Override
-	public byte[] obtenerArchivo(String subRuta, String nombreArchivo) throws IOException {
+        return guardarArchivo(archivoLlegada, subRuta);
+    }
 
-		File archivo = new File(rutaArchivo.concat(subRuta).concat(nombreArchivo));
+    public void eliminarArchivo(String archivoEliminado)
+            throws IllegalStateException, IOException {
+        conexionS3.elimiar(archivoEliminado);
+    }
 
-		InputStream in = new FileInputStream(archivo);
+    private String crearNombreArchivo(String nombreArchivo) {
 
-		return IOUtils.toByteArray(in);
-	}
+        int numero = (int) (Math.random() * 200 + 1);
+        return "archivo-" + numero + "-" + (nombreArchivo.replace("\\", ""));
+    }
+
+    @Override
+    public byte[] obtenerArchivo(String subRuta, String nombreArchivo) throws IOException {
+        return conexionS3.obtenerArchivo(nombreArchivo);
+    }
 
 }

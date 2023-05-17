@@ -12,5 +12,5 @@ public interface IManejadorArchivo {
 	
 	byte[] obtenerArchivo(String subRuta, String nombreArchivo) throws IOException;
 
-	void eliminarArchivo(String nombreArchivoAntiguo, String subRuta) throws IllegalStateException, IOException;
+	void eliminarArchivo(String nombreArchivoAntiguo) throws IllegalStateException, IOException;
 }
