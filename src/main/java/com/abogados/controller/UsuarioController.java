@@ -37,6 +37,12 @@ public class UsuarioController {
 		return new ResponseEntity<List<Usuario>>(usuario, HttpStatus.OK);
 	}
 
+	@GetMapping("/listarSinCliente")
+	public ResponseEntity<List<Usuario>> listarSinCliente()  throws Exception{
+		List<Usuario> usuario = service.listarSinCliente();
+		return new ResponseEntity<List<Usuario>>(usuario, HttpStatus.OK);
+	}
+
 	@PostMapping()
 	public ResponseEntity<?> insertar(@RequestBody UsuarioRol usuarioRol)  throws Exception{
 		

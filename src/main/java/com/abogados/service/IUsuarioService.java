@@ -14,4 +14,6 @@ public interface IUsuarioService extends IGeneralService<Usuario, Integer>{
 	
 	Usuario info(HttpServletRequest request);
 
+	List<Usuario> listarSinCliente();
+
 }

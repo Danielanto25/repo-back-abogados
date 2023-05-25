@@ -103,7 +103,7 @@ public class ActuacionProcesoServiceImpl extends GeneralServiceImpl<ActuacionPro
 	public void eliminarArchivo(Integer id) throws IOException {
 
 		ActuacionProceso actuacionProceso = listarPorId(id);
-		manejadorArchivo.eliminarArchivo(actuacionProceso.getArchivo(), rutaActuacionProceso);
+		//manejadorArchivo.eliminarArchivo(actuacionProceso.getArchivo(), rutaActuacionProceso);
 		
 		repo.eliminar(id);
 	

@@ -182,8 +182,17 @@ public class ProcesoRepository implements IProcesoRepository {
 
 	@Override
 	public Proceso listarPorId(Integer id) {
-		// TODO Auto-generated method stub
-		return null;
+		MapSqlParameterSource parameter = new MapSqlParameterSource();
+		parameter.addValue("id", id);
+		String sql = "select * from procesos where pro_id = :id";
+
+		List<Proceso> lstProcesos = namedJdbcTemplate.query(sql, parameter, mapeo);
+
+		if(lstProcesos.isEmpty()){
+			return null;
+		}else{
+			return lstProcesos.get(0);
+		}
 	}
 
 	public List<ProcesoDto> listarProcesosPorCliente(String clienteDocumento) {

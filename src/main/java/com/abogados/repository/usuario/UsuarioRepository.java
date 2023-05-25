@@ -39,9 +39,17 @@ public class UsuarioRepository implements IUsuarioRepository {
 	}
 
 	@Override
+	public List<Usuario> listarSinCliente() {
+
+		String sql = "SELECT u.* FROM usuarios u JOIN usuarios_rol ur ON u.usu_id = ur.usu_id JOIN roles r ON ur.rol_id = r.rol_id WHERE r.rol_nombre != 'cliente';";
+		List<Usuario> lstUsuarioSinCliente = namedJdbcTemplate.query(sql, mapeo);
+
+		return lstUsuarioSinCliente;
+
+	}
+
+	@Override
 	public Integer insertar(Usuario usuario) {
-		
-		
 
 		MapSqlParameterSource parameter = new MapSqlParameterSource();
 		

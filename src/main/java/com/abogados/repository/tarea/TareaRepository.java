@@ -37,9 +37,10 @@ public class TareaRepository implements ITareaRepository {
 		parameter.addValue("link", tarea.getLink());
 		parameter.addValue("idTit", tarea.getTipoTarea().getId());
 		parameter.addValue("idCli", tarea.getCliente().getId());
+		parameter.addValue("idPro", tarea.getProceso().getId());
 
-		String sql = "INSERT INTO tareas(tar_nombre, tar_descripcion, tar_link, tit_id, cli_id) "
-				+ "VALUES(:nombre, :descripcion, :link, :idTit, :idCli);";
+		String sql = "INSERT INTO tareas(tar_nombre, tar_descripcion, tar_link, tit_id, cli_id, pro_id) "
+				+ "VALUES(:nombre, :descripcion, :link, :idTit, :idCli, :idPro);";
 
 		final KeyHolder holder = new GeneratedKeyHolder();
 		namedJdbcTemplate.update(sql, parameter, holder);
@@ -56,10 +57,11 @@ public class TareaRepository implements ITareaRepository {
 		parameter.addValue("link", tarea.getLink());
 		parameter.addValue("idTit", tarea.getTipoTarea().getId());
 		parameter.addValue("idCli", tarea.getCliente().getId());
+		parameter.addValue("idPro", tarea.getProceso().getId());
 		parameter.addValue("id", tarea.getId());
 
 		String sql = "UPDATE tareas SET tar_nombre = :nombre, tar_descripcion = :descripcion, tar_link = :link, tit_id = :idTit, "
-				+ "cli_id = :idCli WHERE tar_id = :id;";
+				+ "cli_id = :idCli, pro_id = :idPro WHERE tar_id = :id;";
 
 		namedJdbcTemplate.update(sql, parameter);
 

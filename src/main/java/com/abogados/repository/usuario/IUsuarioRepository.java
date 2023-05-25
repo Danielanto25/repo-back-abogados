@@ -14,4 +14,6 @@ public interface IUsuarioRepository extends GeneralRepo<Usuario,Integer>{
 	
 	Usuario info(String usuario);
 
+	List<Usuario> listarSinCliente();
+
 }

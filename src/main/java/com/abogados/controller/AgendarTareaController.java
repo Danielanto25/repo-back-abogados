@@ -2,6 +2,7 @@ package com.abogados.controller;
 
 import java.util.List;
 
+import com.abogados.model.responsable.Responsable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,12 @@ public class AgendarTareaController {
 	public ResponseEntity<List<AgendarTareaDto>> listarDto() throws Exception {
 		List<AgendarTareaDto> agendarTarea = service.listarDto();
 		return new ResponseEntity<List<AgendarTareaDto>>(agendarTarea, HttpStatus.OK);
+	}
+
+	@GetMapping("responsables/{agendarTarId}")
+	public ResponseEntity<List<Responsable>> listarResponsables(@PathVariable Integer agendarTarId) throws Exception {
+		List<Responsable> responsable = service.listarResponsables(agendarTarId);
+		return new ResponseEntity<List<Responsable>>(responsable, HttpStatus.OK);
 	}
 	
 	@GetMapping("/listarUser/{user}")

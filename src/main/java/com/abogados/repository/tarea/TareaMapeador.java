@@ -3,6 +3,8 @@ package com.abogados.repository.tarea;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.abogados.model.proceso.Proceso;
+import com.abogados.repository.proceso.IProcesoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -23,6 +25,9 @@ public class TareaMapeador implements RowMapper<Tarea> {
 	@Autowired
 	private IClienteRepository clienteRepo;
 
+	@Autowired
+	private IProcesoRepository procesoRepo;
+
 	@Override
 	public Tarea mapRow(ResultSet rs, int rowNum) throws SQLException {
 
@@ -32,8 +37,9 @@ public class TareaMapeador implements RowMapper<Tarea> {
 		String link = rs.getString("tar_link");
 		TipoTarea tipoTarea = tipoTareaRepo.listarPorId(rs.getInt("tit_id"));
 		Cliente cliente = clienteRepo.listarPorId(rs.getInt("cli_id"));
+		Proceso proceso = procesoRepo.listarPorId(rs.getInt("pro_id"));
 
-		return new Tarea(id, nombre, descripcion, link, tipoTarea, cliente);
+		return new Tarea(id, nombre, descripcion, link, tipoTarea, cliente, proceso);
 
 	}
 }

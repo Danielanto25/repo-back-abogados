@@ -33,6 +33,11 @@ public class UsuarioServiceImpl extends GeneralServiceImpl<Usuario, Integer> imp
     }
 
     @Override
+    public List<Usuario> listarSinCliente() {
+        return repo.listarSinCliente();
+    }
+
+    @Override
     public Usuario buscarUsuarioClaveEstadoPorUsuario(String username) {
         return repo.buscarUsuarioClaveEstadoPorUsuario(username);
     }

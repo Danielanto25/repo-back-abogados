@@ -123,7 +123,7 @@ public class ClienteServiceImpl extends GeneralServiceImpl<Cliente, Integer> imp
 	public void eliminarArchivo(Integer id) throws IOException {
 
 		Cliente cliente = listarPorId(id);
-		manejadorArchivo.eliminarArchivo(cliente.getArchivo(), rutaCliente);
+		//manejadorArchivo.eliminarArchivo(cliente.getArchivo(), rutaCliente);
 		
 		repo.eliminar(id);
 	

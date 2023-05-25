@@ -60,7 +60,7 @@ public class TareaServiceImpl extends GeneralServiceImpl<Tarea,Integer>   implem
 		TareaDto tareaDto = objectMapper.readValue(json, TareaDto.class);
 		
 		Tarea validarTarea = new Tarea(tareaDto.getTarea().getId(),tareaDto.getTarea().getNombre(), tareaDto.getTarea().getDescripcion(), tareaDto.getTarea().getLink(),
-				tareaDto.getTarea().getTipoTarea(), tareaDto.getTarea().getCliente());
+				tareaDto.getTarea().getTipoTarea(), tareaDto.getTarea().getCliente(), tareaDto.getTarea().getProceso());
 		repo.actualizar(validarTarea);
 		
 		AgendarTarea validarAgeTarea = new AgendarTarea(tareaDto.getAgendarTarea().getId(),tareaDto.getAgendarTarea().getFechaHoraInicio(),
@@ -71,6 +71,7 @@ public class TareaServiceImpl extends GeneralServiceImpl<Tarea,Integer>   implem
 
 	@Override
 	public void pasarReporte(Integer id, Integer idReporte) {
+
 		repo.pasarReporte(id, idReporte);
 	}
 	

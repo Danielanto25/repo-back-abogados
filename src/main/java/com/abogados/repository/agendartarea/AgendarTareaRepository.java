@@ -2,6 +2,9 @@ package com.abogados.repository.agendartarea;
 
 import java.util.List;
 
+import com.abogados.model.responsable.Responsable;
+import com.abogados.model.responsables.Responsables;
+import com.abogados.repository.responsable.ResponsableMapeador;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -23,12 +26,16 @@ public class AgendarTareaRepository implements IAgendarTareaRepository{
 	@Autowired
 	private AgendarTareaDtoMapeador dtoMapeo;
 
+	@Autowired
+	private ResponsableMapeador resMapeo;
+
 	@Override
 	public List<AgendarTarea> listar() {
 		String sql = "select * from agendar_tareas";
 		List<AgendarTarea> lstAgendarTarea = namedJdbcTemplate.query(sql, mapeo);
 		return lstAgendarTarea;
 	}
+
 	
 	@Override
 	public List<AgendarTareaDto> listarDto(){
@@ -100,6 +107,15 @@ public class AgendarTareaRepository implements IAgendarTareaRepository{
 		List<AgendarTarea> lstTarea = namedJdbcTemplate.query(sql, parameter, mapeo);
 		return lstTarea.get(0);
 
+	}
+
+	@Override
+	public List<Responsable> listarResponsables(Integer agendarTarId){
+		MapSqlParameterSource parameter = new MapSqlParameterSource();
+		parameter.addValue("agtId", agendarTarId);
+		String sql = "SELECT * FROM responsables where agt_id = :agtId";
+		List<Responsable> lstResponsables = namedJdbcTemplate.query(sql, parameter, resMapeo);
+		return lstResponsables;
 	}
 	
 	@Override

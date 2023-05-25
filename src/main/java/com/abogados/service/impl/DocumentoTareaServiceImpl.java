@@ -2,6 +2,8 @@ package com.abogados.service.impl;
 
 import java.io.IOException;
 
+import com.abogados.model.proceso.Proceso;
+import com.abogados.repository.proceso.IProcesoRepository;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,159 +28,166 @@ import com.abogados.service.IManejadorArchivo;
 @Service
 
 public class DocumentoTareaServiceImpl extends GeneralServiceImpl<DocumentoTarea, Integer>
-		implements IDocumentoTareaService {
+        implements IDocumentoTareaService {
 
-	@Autowired
-	private IDocumentoTareaRepository repo;
+    @Autowired
+    private IDocumentoTareaRepository repo;
 
-	@Autowired
-	private ITareaRepository tareaRepo;
+    @Autowired
+    private ITareaRepository tareaRepo;
 
-	@Autowired
-	private IAgendarTareaRepository ageTarRepo;
+    @Autowired
+    private IAgendarTareaRepository ageTarRepo;
 
-	@Autowired
-	private IResponsableRepository repoRes;
+    @Autowired
+    private IResponsableRepository repoRes;
 
-	@Override
-	protected GeneralRepo<DocumentoTarea, Integer> getRepo() {
-		return repo;
-	}
+    @Autowired
+    private IProcesoRepository repoPro;
 
-	@Autowired
-	private IManejadorArchivo manejadorArchivo;
+    @Override
+    protected GeneralRepo<DocumentoTarea, Integer> getRepo() {
+        return repo;
+    }
 
-	@Value("${ruta.documentoTarea}")
-	private String rutaDocumentoTarea;
+    @Autowired
+    private IManejadorArchivo manejadorArchivo;
 
-	@Override
-	public Integer subirArchivo(String json, MultipartFile archivoLlegada, String responsable) throws IOException {
+    @Value("${ruta.documentoTarea}")
+    private String rutaDocumentoTarea;
 
-		ObjectMapper objectMapper = new ObjectMapper();
+    @Override
+    public Integer subirArchivo(String json, MultipartFile archivoLlegada, String responsable) throws IOException {
 
-		TareaDto tareaDto = objectMapper.readValue(json, TareaDto.class);
+        ObjectMapper objectMapper = new ObjectMapper();
 
-		Tarea validarTarea = new Tarea(tareaDto.getTarea().getNombre(), tareaDto.getTarea().getDescripcion(),
-				tareaDto.getTarea().getLink(), tareaDto.getTarea().getTipoTarea(), tareaDto.getTarea().getCliente());
+        TareaDto tareaDto = objectMapper.readValue(json, TareaDto.class);
 
-		Integer resultadoTarea = tareaRepo.insertar(validarTarea);
-		validarTarea.setId(resultadoTarea);
+        Proceso proceso = repoPro.listarPorNumeroProceso(tareaDto.getTarea().getProceso().getNumeroProceso());
 
-		AgendarTarea validarAgeTarea = new AgendarTarea(tareaDto.getAgendarTarea().getFechaHoraInicio(),
-				tareaDto.getAgendarTarea().getFechaHoraFin(), tareaDto.getAgendarTarea().getEstado(), validarTarea);
+        Tarea validarTarea = new Tarea(tareaDto.getTarea().getNombre(), tareaDto.getTarea().getDescripcion(),
+                tareaDto.getTarea().getLink(), tareaDto.getTarea().getTipoTarea(), tareaDto.getTarea().getCliente(), proceso);
 
-		int resuAgeTare = ageTarRepo.insertar(validarAgeTarea);
-		validarAgeTarea.setId(resuAgeTare);
-		Responsable respon = objectMapper.readValue(responsable, Responsable.class);
+        Integer resultadoTarea = tareaRepo.insertar(validarTarea);
+        validarTarea.setId(resultadoTarea);
 
-		respon.setAgendarTarea(validarAgeTarea);
-		System.out.println(respon);
+        AgendarTarea validarAgeTarea = new AgendarTarea(tareaDto.getAgendarTarea().getFechaHoraInicio(),
+                tareaDto.getAgendarTarea().getFechaHoraFin(), tareaDto.getAgendarTarea().getEstado(), validarTarea);
 
-		repoRes.insertar(respon);
+        int resuAgeTare = ageTarRepo.insertar(validarAgeTarea);
+        validarAgeTarea.setId(resuAgeTare);
+        Responsable respon = objectMapper.readValue(responsable, Responsable.class);
 
-		DocumentoTarea documentoTarea = new DocumentoTarea();
+        respon.setAgendarTarea(validarAgeTarea);
+        System.out.println(respon);
 
-		documentoTarea.setTarea(validarTarea);
-		documentoTarea.setArchivo(manejadorArchivo.guardarArchivo(archivoLlegada, rutaDocumentoTarea));
+        repoRes.insertar(respon);
 
-		return repo.insertar(documentoTarea);
-		//return null;
-	}
-	
-	@Override
-	public Integer insertarVariosResponsables(String json, MultipartFile archivoLlegada,String responsable) throws IOException {
+        DocumentoTarea documentoTarea = new DocumentoTarea();
 
-		ObjectMapper objectMapper = new ObjectMapper();
+        documentoTarea.setTarea(validarTarea);
+        documentoTarea.setArchivo(manejadorArchivo.guardarArchivo(archivoLlegada, rutaDocumentoTarea));
 
-		ResponsablesMultiplesDto responsablesMultiplesDto = objectMapper.readValue(json, ResponsablesMultiplesDto.class);
+        return repo.insertar(documentoTarea);
+        //return null;
+    }
 
-		Tarea validarTarea = new Tarea(responsablesMultiplesDto.getTareaDto().getTarea().getNombre(), responsablesMultiplesDto.getTareaDto().getTarea().getDescripcion(),
-				responsablesMultiplesDto.getTareaDto().getTarea().getLink(), responsablesMultiplesDto.getTareaDto().getTarea().getTipoTarea(), responsablesMultiplesDto.getTareaDto().getTarea().getCliente());
+    @Override
+    public Integer insertarVariosResponsables(String json, MultipartFile archivoLlegada, String responsable) throws IOException {
 
-		
-		Integer resultadoTarea = tareaRepo.insertar(validarTarea);
-		validarTarea.setId(resultadoTarea);
+        ObjectMapper objectMapper = new ObjectMapper();
 
-		AgendarTarea validarAgeTarea = new AgendarTarea(responsablesMultiplesDto.getTareaDto().getAgendarTarea().getFechaHoraInicio(),
-				responsablesMultiplesDto.getTareaDto().getAgendarTarea().getFechaHoraFin(), responsablesMultiplesDto.getTareaDto().getAgendarTarea().getEstado(), validarTarea);
+        ResponsablesMultiplesDto responsablesMultiplesDto = objectMapper.readValue(json, ResponsablesMultiplesDto.class);
 
-		int resuAgeTare = ageTarRepo.insertar(validarAgeTarea);
-		validarAgeTarea.setId(resuAgeTare);
-		
-		//RESPONSABLES
-		
-		Responsable respon = objectMapper.readValue(responsable, Responsable.class);
+        Proceso proceso = repoPro.listarPorNumeroProceso(responsablesMultiplesDto.getTareaDto().getTarea().getProceso().getNumeroProceso());
 
-		respon.setAgendarTarea(validarAgeTarea);
+        Tarea validarTarea = new Tarea(responsablesMultiplesDto.getTareaDto().getTarea().getNombre(), responsablesMultiplesDto.getTareaDto().getTarea().getDescripcion(),
+                responsablesMultiplesDto.getTareaDto().getTarea().getLink(), responsablesMultiplesDto.getTareaDto().getTarea().getTipoTarea(), responsablesMultiplesDto.getTareaDto().getTarea().getCliente(), proceso);
 
-		repoRes.insertar(respon);
-		
-		for(Usuario u:responsablesMultiplesDto.getResponsables()) {
-			if(repoRes.listarPorTareaYUsuario(validarAgeTarea.getId(), u.getId()) == 0) {
-				Responsable res = new Responsable(u,validarAgeTarea);
-				repoRes.insertar(res);
-			}
-		}
 
-		DocumentoTarea documentoTarea = new DocumentoTarea();
+        Integer resultadoTarea = tareaRepo.insertar(validarTarea);
+        validarTarea.setId(resultadoTarea);
 
-		documentoTarea.setTarea(validarTarea);
-		documentoTarea.setArchivo(manejadorArchivo.guardarArchivo(archivoLlegada, rutaDocumentoTarea));
+        AgendarTarea validarAgeTarea = new AgendarTarea(responsablesMultiplesDto.getTareaDto().getAgendarTarea().getFechaHoraInicio(),
+                responsablesMultiplesDto.getTareaDto().getAgendarTarea().getFechaHoraFin(), responsablesMultiplesDto.getTareaDto().getAgendarTarea().getEstado(), validarTarea);
 
-		return repo.insertar(documentoTarea);
-		//return null;
-	}
+        int resuAgeTare = ageTarRepo.insertar(validarAgeTarea);
+        validarAgeTarea.setId(resuAgeTare);
 
-	public void subirArchivoEditar(String json, MultipartFile archivoLlegada) throws IOException {
+        //RESPONSABLES
 
-		ObjectMapper objectMapper = new ObjectMapper();
+        Responsable respon = objectMapper.readValue(responsable, Responsable.class);
 
-		TareaDto tareaDto = objectMapper.readValue(json, TareaDto.class);
+        respon.setAgendarTarea(validarAgeTarea);
 
-		Tarea validarTarea = new Tarea(tareaDto.getTarea().getId(), tareaDto.getTarea().getNombre(),
-				tareaDto.getTarea().getDescripcion(), tareaDto.getTarea().getLink(), tareaDto.getTarea().getTipoTarea(),
-				tareaDto.getTarea().getCliente());
+        repoRes.insertar(respon);
 
-		tareaRepo.actualizar(validarTarea);
+        for (Usuario u : responsablesMultiplesDto.getResponsables()) {
+            if (repoRes.listarPorTareaYUsuario(validarAgeTarea.getId(), u.getId()) == 0) {
+                Responsable res = new Responsable(u, validarAgeTarea);
+                repoRes.insertar(res);
+            }
+        }
 
-		AgendarTarea validarAgeTarea = new AgendarTarea(tareaDto.getAgendarTarea().getId(),
-				tareaDto.getAgendarTarea().getFechaHoraInicio(), tareaDto.getAgendarTarea().getFechaHoraFin(),
-				tareaDto.getAgendarTarea().getEstado(), validarTarea);
-		ageTarRepo.actualizar(validarAgeTarea);
+        DocumentoTarea documentoTarea = new DocumentoTarea();
 
-		DocumentoTarea documentoTarea = new DocumentoTarea();
+        documentoTarea.setTarea(validarTarea);
+        documentoTarea.setArchivo(manejadorArchivo.guardarArchivo(archivoLlegada, rutaDocumentoTarea));
 
-		documentoTarea.setTarea(validarTarea);
+        return repo.insertar(documentoTarea);
+        //return null;
+    }
 
-		DocumentoTarea documentoViejo = repo.listarPorId(documentoTarea.getId());
+    public void subirArchivoEditar(String json, MultipartFile archivoLlegada) throws IOException {
 
-		try {
-			if (!archivoLlegada.isEmpty()) {
+        ObjectMapper objectMapper = new ObjectMapper();
 
-				documentoTarea.setArchivo(manejadorArchivo.actualizarArchivo(archivoLlegada,
-						documentoViejo.getArchivo(), rutaDocumentoTarea));
-			}
-		} catch (Exception e) {
-			// TODO: handle exception
-			System.err.println(e);
-		}
-		repo.actualizar(documentoTarea);
-	}
-	
-	@Override
-	public byte[] obtenerArchivo(Integer id) throws IOException {
+        TareaDto tareaDto = objectMapper.readValue(json, TareaDto.class);
 
-		DocumentoTarea documentoTarea = listarPorId(id);
+        Tarea validarTarea = new Tarea(tareaDto.getTarea().getId(), tareaDto.getTarea().getNombre(),
+                tareaDto.getTarea().getDescripcion(), tareaDto.getTarea().getLink(), tareaDto.getTarea().getTipoTarea(),
+                tareaDto.getTarea().getCliente(), tareaDto.getTarea().getProceso());
 
-		return manejadorArchivo.obtenerArchivo(rutaDocumentoTarea,documentoTarea.getArchivo());
+        tareaRepo.actualizar(validarTarea);
 
-	}
+        AgendarTarea validarAgeTarea = new AgendarTarea(tareaDto.getAgendarTarea().getId(),
+                tareaDto.getAgendarTarea().getFechaHoraInicio(), tareaDto.getAgendarTarea().getFechaHoraFin(),
+                tareaDto.getAgendarTarea().getEstado(), validarTarea);
+        ageTarRepo.actualizar(validarAgeTarea);
 
-	@Override
-	public void actualizarSinArchivo(String json) throws IOException {
-		ObjectMapper objectMapper = new ObjectMapper();
-		DocumentoTarea documentoTarea = objectMapper.readValue(json, DocumentoTarea.class);
-		repo.actualizarSinArchivo(documentoTarea);
+        DocumentoTarea documentoTarea = new DocumentoTarea();
 
-	}
+        documentoTarea.setTarea(validarTarea);
+
+        DocumentoTarea documentoViejo = repo.listarPorId(documentoTarea.getId());
+
+        try {
+            if (!archivoLlegada.isEmpty()) {
+
+                documentoTarea.setArchivo(manejadorArchivo.actualizarArchivo(archivoLlegada,
+                        documentoViejo.getArchivo(), rutaDocumentoTarea));
+            }
+        } catch (Exception e) {
+            // TODO: handle exception
+            System.err.println(e);
+        }
+        repo.actualizar(documentoTarea);
+    }
+
+    @Override
+    public byte[] obtenerArchivo(Integer id) throws IOException {
+
+        DocumentoTarea documentoTarea = listarPorId(id);
+
+        return manejadorArchivo.obtenerArchivo(rutaDocumentoTarea, documentoTarea.getArchivo());
+
+    }
+
+    @Override
+    public void actualizarSinArchivo(String json) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        DocumentoTarea documentoTarea = objectMapper.readValue(json, DocumentoTarea.class);
+        repo.actualizarSinArchivo(documentoTarea);
+
+    }
 }

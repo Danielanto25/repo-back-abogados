@@ -69,7 +69,7 @@ public class BibliotecaDocumentoServiceImpl extends GeneralServiceImpl<Bibliotec
 	public void eliminarArchivo(Integer id) throws IOException {
 
 		BibliotecaDocumento bibliotecaDocumento = listarPorId(id);
-		manejadorArchivo.eliminarArchivo(bibliotecaDocumento.getArchivo(), rutaBiblioteca);
+		//manejadorArchivo.eliminarArchivo(bibliotecaDocumento.getArchivo(), rutaBiblioteca);
 		
 		repo.eliminar(id);
 	
@@ -81,7 +81,7 @@ public class BibliotecaDocumentoServiceImpl extends GeneralServiceImpl<Bibliotec
 		List<BibliotecaDocumento> documentos = repo.listarPorClienteId(id);
 		
 		for (BibliotecaDocumento bibliotecaDocumento : documentos) {
-			manejadorArchivo.eliminarArchivo(bibliotecaDocumento.getArchivo(), rutaBiblioteca);
+			//manejadorArchivo.eliminarArchivo(bibliotecaDocumento.getArchivo(), rutaBiblioteca);
 			
 			repo.eliminar(id);
 		}

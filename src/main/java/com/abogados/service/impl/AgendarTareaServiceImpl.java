@@ -3,6 +3,8 @@ package com.abogados.service.impl;
 import java.io.IOException;
 import java.util.List;
 
+import com.abogados.model.responsable.Responsable;
+import com.abogados.model.responsables.Responsables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +54,12 @@ public class AgendarTareaServiceImpl extends GeneralServiceImpl<AgendarTarea,Int
 	public AgendarTarea listarTarea(Integer tareaId) {
 		return repo.listarTarea(tareaId);
 	}
-	
+
+	@Override
+	public List<Responsable> listarResponsables(Integer agendarTarId) {
+		return repo.listarResponsables(agendarTarId);
+	}
+
 	@Override
 	public List<AgendarTarea> listarPorFechaInicio(String fechaInicio) throws IOException {
 		return repo.listarPorFechaInicio(fechaInicio);
